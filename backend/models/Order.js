@@ -58,6 +58,7 @@ const orderSchema = new mongoose.Schema(
     ],
 
     notes: { type: String, default: "" }, // internal admin notes
+    archivedAt: { type: Date, default: null }, // removed from the active admin list
     invoiceGeneratedAt: { type: Date },
   },
   { timestamps: true }

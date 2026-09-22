@@ -153,7 +153,7 @@ exports.trackOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
-    const query = {};
+    const query = { archivedAt: req.query.archived === "true" ? { $ne: null } : null };
     if (status) query.status = status;
     const skip = (Number(page) - 1) * Number(limit);
     const [orders, total] = await Promise.all([
@@ -167,6 +167,24 @@ exports.getOrders = async (req, res) => {
 };
 
 // GET /api/orders/:id  (admin)
+exports.setOrderArchived = async (req, res) => {
+  try {
+    if (!mongoose.isObjectIdOrHexString(req.params.id)) {
+      return res.status(400).json({ message: "Invalid order ID" });
+    }
+    if (typeof req.body.archived !== "boolean") {
+      return res.status(400).json({ message: "archived must be true or false" });
+    }
+    const order = await Order.findByIdAndUpdate(req.params.id,
+      { $set: { archivedAt: req.body.archived ? new Date() : null } },
+      { new: true, runValidators: true });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: "Could not update removed order" });
+  }
+};
+
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);

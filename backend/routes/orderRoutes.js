@@ -9,6 +9,7 @@ const {
   getInvoice,
   getStats,
   getCustomerOrders,
+  setOrderArchived,
 } = require("../controllers/orderController");
 const { protectAdmin } = require("../middleware/auth");
 const { protectCustomer } = require("../middleware/customerAuth");
@@ -25,6 +26,7 @@ router.get("/customer/:customerId", protectAdmin, getCustomerOrders);
 router.get("/", protectAdmin, getOrders);
 router.get("/:id", protectAdmin, getOrderById);
 router.patch("/:id/status", protectAdmin, updateOrderStatus);
+router.patch("/:id/archive", protectAdmin, setOrderArchived);
 router.get("/:id/invoice", protectAdmin, getInvoice);
 
 module.exports = router;
