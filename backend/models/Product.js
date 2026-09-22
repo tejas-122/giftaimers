@@ -42,7 +42,7 @@ const productSchema = new mongoose.Schema(
 );
 
 // Keep outOfStock and sellingPrice in sync whenever a product is saved
-productSchema.pre("save", function (next) {
+productSchema.pre("validate", function (next) {
   if (this.stock <= 0) this.outOfStock = true;
   else if (this.isModified("stock") && this.stock > 0) this.outOfStock = false;
 
