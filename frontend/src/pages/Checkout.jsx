@@ -7,7 +7,7 @@ import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
 
 export default function Checkout() {
   const { items, itemsTotal, clearCart } = useCart();
-  const { customer } = useCustomerAuth();
+  const { customer, logout } = useCustomerAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: customer?.name || "",
@@ -24,6 +24,10 @@ export default function Checkout() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!customer) {
+      navigate("/signin", { state: { from: "/checkout" }, replace: true });
+      return;
+    }
     if (items.length === 0) return toast.error("Your cart is empty");
     setSubmitting(true);
     try {
@@ -41,6 +45,12 @@ export default function Checkout() {
       clearCart();
       navigate(`/order-success/${res.data.orderNumber}`);
     } catch (err) {
+      if (err.response?.status === 401) {
+        logout();
+        toast.error("Please sign in again to place your order. Your cart is saved.");
+        navigate("/signin", { state: { from: "/checkout" }, replace: true });
+        return;
+      }
       toast.error(err.response?.data?.message || "Could not place order");
     } finally {
       setSubmitting(false);

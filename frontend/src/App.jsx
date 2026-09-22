@@ -21,6 +21,7 @@ import ProductList from "./admin/ProductList.jsx";
 import ProductForm from "./admin/ProductForm.jsx";
 import OrdersList from "./admin/OrdersList.jsx";
 import OrderDetail from "./admin/OrderDetail.jsx";
+import CustomerDetail from "./admin/CustomerDetail.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="products/:id/edit" element={<ProductForm />} />
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/:id" element={<OrderDetail />} />
+          <Route path="customers/:id" element={<CustomerDetail />} />
         </Route>
       </Routes>
     </div>

@@ -1,60 +1,49 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+﻿import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
 import logo from "../assets/logo.png";
+import api from "../api/api";
+
+export function StoreIcon({ name }) {
+  const paths = {
+    search: <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></>,
+    cart: <><path d="M2 3h3l3 12h11l3-9H6" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></>,
+    account: <><rect x="3" y="3" width="18" height="18" rx="6" /><circle cx="12" cy="9" r="3" /><path d="M6 19c0-6 12-6 12 0" /></>,
+    track: <><path d="m3 7 9-4 9 4v11l-9 4-9-4V7Zm0 0 9 4 9-4M12 11v11M7 5l10 4" /></>,
+    gift: <><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M5 12v9h14v-9M12 8v13M12 8C3 8 5 0 9 3l3 5Zm0 0c9 0 7-8 3-5l-3 5Z" /></>,
+    more: <><rect x="3" y="3" width="18" height="18" rx="6" /><path d="M7 12h.01M12 12h.01M17 12h.01" strokeWidth="3" /></>,
+  };
+  return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+}
 
 export default function Navbar() {
   const { itemCount } = useCart();
   const { customer } = useCustomerAuth();
-  const [open, setOpen] = useState(false);
-
+  const [search, setSearch] = useState("");
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  useEffect(() => { api.get("/products/categories/list").then(({ data }) => setCategories(data)).catch(() => setCategories([])); }, []);
+  const navigate = useNavigate();
+  function searchGifts(event) {
+    event.preventDefault();
+    navigate(search.trim() ? `/shop?search=${encodeURIComponent(search.trim())}` : "/shop");
+  }
   return (
-    <header className="sticky top-0 z-40 bg-ink/90 backdrop-blur border-b border-ink/10">
-      <div className="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="GiftAimers" className="h-11 w-11 object-contain" />
-          <span className="font-display text-xl tracking-wide text-ivory hidden sm:inline">
-            gift<span className="text-gold">aimers</span>
-          </span>
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-8 font-body text-sm text-ivory/80">
-          <Link to="/shop" className="hover:text-gold transition-colors">Shop</Link>
-          <Link to="/track-order" className="hover:text-gold transition-colors">Track Order</Link>
+    <header className="store-header font-body">
+      <div className="store-topbar">
+        <Link to="/" className="store-brand" aria-label="GiftAimers home"><img src={logo} alt="" /><span>gift<span className="text-gold">aimers</span><small>little gifts. big feelings.</small></span></Link>
+        <div className="store-location"><span aria-hidden="true">🇮🇳</span><div>Made with love in<strong>Bhopal, Madhya Pradesh</strong></div></div>
+        <form onSubmit={searchGifts} className="store-search" role="search"><input aria-label="Search gifts" type="search" placeholder="Find a gift they'll love..." value={search} onChange={(e) => setSearch(e.target.value)} /><button type="submit" aria-label="Search"><StoreIcon name="search" /></button></form>
+        <Link to="/shop" className="store-finder"><StoreIcon name="gift" /> Find a gift</Link>
+        <nav aria-label="Account and orders" className="store-actions">
+          <Link to="/track-order" className="store-action store-track"><StoreIcon name="track" /><span>Track Order</span></Link>
+          <Link to="/cart" className="store-action"><span className="relative"><StoreIcon name="cart" />{itemCount > 0 && <b className="store-cart-count">{itemCount}</b>}</span><span>Cart</span></Link>
+          <Link to={customer ? "/account" : "/signin"} className="store-action"><StoreIcon name="account" /><span>{customer ? `Hi, ${customer.name.split(" ")[0]}` : "Hi, Guest"}</span></Link>
+          <div className="relative store-more"><button className="store-action" onClick={() => setMoreOpen(!moreOpen)} aria-expanded={moreOpen} aria-controls="store-more-menu"><StoreIcon name="more" /><span>More</span></button>{moreOpen && <div id="store-more-menu" className="store-more-menu"><Link to="/track-order" onClick={() => setMoreOpen(false)}>Track an order</Link><a href="#contact" onClick={() => setMoreOpen(false)}>Contact us</a><Link to="/signup" onClick={() => setMoreOpen(false)}>Create an account</Link></div>}</div>
         </nav>
-
-        <div className="flex items-center gap-4">
-          <Link to={customer ? "/account" : "/signin"} className="text-sm text-ivory/80 hover:text-gold transition-colors hidden sm:inline">
-            {customer ? `Hi, ${customer.name.split(" ")[0]}` : "Sign In"}
-          </Link>
-          <Link to="/cart" className="relative">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M3 3h2l.4 2M7 13h10l3-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 0 0 5.6 19H17M9 21a1 1 0 100-2 1 1 0 000 2zM17 21a1 1 0 100-2 1 1 0 000 2z"/>
-            </svg>
-            {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-gold text-ink text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                {itemCount}
-              </span>
-            )}
-          </Link>
-          <button className="md:hidden text-ivory" onClick={() => setOpen(!open)} aria-label="Toggle menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-          </button>
-        </div>
       </div>
-
-      {open && (
-        <div className="md:hidden px-5 pb-4 flex flex-col gap-3 text-ivory/80 font-body text-sm">
-          <Link to="/shop" onClick={() => setOpen(false)}>Shop</Link>
-          <Link to="/track-order" onClick={() => setOpen(false)}>Track Order</Link>
-          <Link to={customer ? "/account" : "/signin"} onClick={() => setOpen(false)}>
-            {customer ? `Hi, ${customer.name.split(" ")[0]}` : "Sign In"}
-          </Link>
-        </div>
-      )}
+      <nav className="store-categories" aria-label="Gift categories"><Link to="/shop">All Gifts</Link><Link to="/shop?sort=popular">Bestsellers</Link><Link to="/shop?search=anniversary">Anniversary</Link>{categories.map((category) => <Link key={category} to={`/shop?category=${encodeURIComponent(category)}`}>{category}<span aria-hidden="true">⌄</span></Link>)}<Link to="/shop">New Arrivals</Link></nav>
     </header>
   );
 }

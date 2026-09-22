@@ -2,75 +2,60 @@
 import { Link } from "react-router-dom";
 import api from "../api/api";
 import ProductCard from "../components/ProductCard.jsx";
+import { StoreIcon } from "../components/Navbar.jsx";
+import logo from "../assets/logo.png";
 
+const campaigns = [
+  { eyebrow: "A LITTLE PERSONAL. A LOT OF LOVE.", title: "Make it", accent: "theirs.", description: "Their name. Your memories. A gift like no other.", cta: "Explore personalised gifts", to: "/shop" },
+  { eyebrow: "FOR YOUR FAVOURITE PERSON", title: "Celebrate", accent: "your story.", description: "Turn the moments you share into keepsakes to treasure.", cta: "Shop anniversary gifts", to: "/shop?search=anniversary" },
+  { eyebrow: "SMALL DETAILS. BIG FEELINGS.", title: "A little", accent: "extra special.", description: "Thoughtful pieces, made personal for the ones you love.", cta: "Discover engraved gifts", to: "/shop?search=engraved" },
+];
 export default function Home() {
-  const [featured, setFeatured] = useState([]);
-  const [categories, setCategories] = useState([]);
-
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [slide, setSlide] = useState(0);
+  const [reload, setReload] = useState(0);
   useEffect(() => {
-    api.get("/products", { params: { featured: true, limit: 8 } }).then((res) => setFeatured(res.data.products));
-    api.get("/products/categories/list").then((res) => setCategories(res.data));
-  }, []);
-
+    let active = true;
+    setLoading(true);
+    setError(false);
+    api.get("/products", { params: { limit: 12 } })
+      .then(({ data }) => { if (active) setProducts(data.products); })
+      .catch(() => { if (active) setError(true); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [reload]);
+  const photo = (pattern) => products.find((p) => pattern.test(p.name))?.images?.[0] || products[0]?.images?.[0] || logo;
+  const shortcuts = [
+    { label: "Bestsellers", detail: "Loved for a reason", image: photo(/mug/i), to: "/shop?sort=popular" },
+    { label: "New Arrivals", detail: "Fresh little finds", image: photo(/calendar/i), to: "/shop" },
+    { label: "Photo Gifts", detail: "Keep a memory close", image: photo(/frame/i), to: "/shop?search=photo" },
+    { label: "All Gifts", detail: "Something for everyone", image: photo(/gift box/i), to: "/shop" },
+  ];
+  const campaign = campaigns[slide];
+  const featured = products.filter((p) => p.isFeatured);
+  const categories = [...new Set(products.map((p) => p.category))];
   return (
-    <div>
-      {/* Hero */}
-      <section className="max-w-7xl mx-auto px-5 pt-14 pb-8">
-        <div className="max-w-3xl">
-          <p className="font-mono text-gold text-xs uppercase tracking-[0.2em] mb-4">Made for the moment</p>
-          <h1 className="font-display text-4xl md:text-6xl leading-[1.05] text-ivory mb-6">
-            Gifts that carry <span className="text-gold italic">their name</span>, not just your order number.
-          </h1>
-          <p className="font-body text-ivory/70 mb-8 max-w-md">
-            Engraved, monogrammed, hand-finished. Every piece on GiftAimers is personalized before it ships.
-          </p>
-          <div className="flex gap-4">
-            <Link to="/shop" className="bg-gold text-ink font-semibold px-6 py-3 rounded-full hover:brightness-110 transition">
-              Shop the Collection
-            </Link>
-            <Link to="/track-order" className="border border-ink/15 text-ivory px-6 py-3 rounded-full hover:border-gold transition">
-              Track an Order
-            </Link>
-          </div>
+    <div className="store-home font-body">
+      <section className="store-showcase" aria-label="Discover gifts">
+        <div className="gift-shortcuts">{shortcuts.map((item) => <Link to={item.to} key={item.label} className="gift-shortcut"><div className="shortcut-photo"><img src={item.image} alt="" /></div><h2>{item.label}</h2><p>{item.detail}</p></Link>)}</div>
+        <div className={`gift-banner gift-banner-${slide}`}>
+          <div className="banner-art" aria-hidden="true"><span className="banner-orbit" /><div className="banner-photo banner-photo-back"><img src={photo(/calendar/i)} alt="" /><span>Your everyday favourite</span></div><div className="banner-photo banner-photo-front"><img src={photo(/frame/i)} alt="" /><span>Made for your memories ♡</span></div><span className="banner-note">made with<br /><i>love</i></span><span className="banner-sparkle">✧</span></div>
+          <div className="banner-copy" aria-live="polite"><p className="banner-eyebrow">{campaign.eyebrow}</p><h1>{campaign.title}<em>{campaign.accent}</em></h1><p className="banner-description">{campaign.description}</p><Link to={campaign.to} className="banner-cta">{campaign.cta}<span aria-hidden="true">→</span></Link></div>
+          <div className="banner-controls"><button onClick={() => setSlide((slide + campaigns.length - 1) % campaigns.length)} aria-label="Previous collection">←</button><div className="banner-dots">{campaigns.map((item, index) => <button key={item.title} aria-label={`Show collection ${index + 1}: ${item.title} ${item.accent}`} aria-pressed={slide === index} onClick={() => setSlide(index)} />)}</div><button onClick={() => setSlide((slide + 1) % campaigns.length)} aria-label="Next collection">→</button></div>
         </div>
       </section>
-
-      <div className="ribbon-divider max-w-7xl mx-auto" />
-
-      {/* Categories */}
-      {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-5 py-14">
-          <h2 className="font-display text-2xl text-ivory mb-6">Browse by category</h2>
-          <div className="flex flex-wrap gap-3">
-            {categories.map((cat) => (
-              <Link
-                key={cat}
-                to={`/shop?category=${encodeURIComponent(cat)}`}
-                className="px-5 py-2 rounded-full bg-surface border border-ink/10 text-ivory/80 hover:border-gold hover:text-gold transition text-sm"
-              >
-                {cat}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Featured products */}
-      <section className="max-w-7xl mx-auto px-5 py-6 pb-20">
-        <div className="flex items-end justify-between mb-6">
-          <h2 className="font-display text-2xl text-ivory">Bestsellers</h2>
-          <Link to="/shop" className="text-gold text-sm hover:underline">View all -&gt;</Link>
-        </div>
-        {featured.length === 0 ? (
-          <p className="text-muted text-sm">No featured products yet - add some from the admin panel.</p>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {featured.map((p) => (
-              <ProductCard key={p._id} product={p} />
-            ))}
-          </div>
-        )}
+      <div className="store-benefits"><span><StoreIcon name="gift" />Personalised with love</span><span><StoreIcon name="track" />Track your order</span><span><StoreIcon name="account" />Your account. Your memories.</span></div>
+      {categories.length > 0 && <section className="store-products" aria-labelledby="categories-heading">
+        <div className="store-section-heading"><div><p>FIND THEIR KIND OF SPECIAL</p><h2 id="categories-heading">Personalised Gifts</h2></div><Link to="/shop">Explore all <span aria-hidden="true">→</span></Link></div>
+        <div className="store-category-grid">{categories.map((category) => <Link key={category} to={`/shop?category=${encodeURIComponent(category)}`}><div><img src={products.find((p) => p.category === category)?.images?.[0] || logo} alt="" loading="lazy" /></div><h3>{category}</h3></Link>)}</div>
+      </section>}
+      <section className="store-products" aria-labelledby="personalised-heading">
+        <div className="store-section-heading"><div><p>SOMETHING ONLY YOU COULD GIVE</p><h2 id="personalised-heading">Gifts in the spotlight</h2></div><Link to="/shop">View all gifts <span aria-hidden="true">→</span></Link></div>
+        {loading ? <div className="grid grid-cols-2 md:grid-cols-4 gap-5" role="status" aria-label="Loading gifts">{[1, 2, 3, 4].map((n) => <div key={n} className="aspect-square rounded-2xl bg-surface animate-pulse" />)}</div> : error ? <div className="store-empty"><p>We couldn't load the gifts right now.</p><button onClick={() => setReload(reload + 1)}>Try again</button></div> : products.length === 0 ? <p className="store-empty">New gifts are on their way. Check back soon.</p> : <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">{(featured.length ? featured : products).slice(0, 8).map((p) => <ProductCard key={p._id} product={p} />)}</div>}
       </section>
+      <section className="store-occasion"><div><p>IT'S THE THOUGHT THAT STAYS.</p><h2>For every name.<br />For every little occasion.</h2></div><Link to="/shop">Find their next favourite gift <span aria-hidden="true">→</span></Link></section>
     </div>
   );
 }

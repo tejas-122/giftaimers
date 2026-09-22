@@ -1,9 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
+import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, itemsTotal } = useCart();
+  const { customer, loading } = useCustomerAuth();
   const navigate = useNavigate();
 
   if (items.length === 0) {
@@ -60,10 +62,16 @@ export default function Cart() {
 
       <button
         onClick={() => navigate("/checkout")}
-        className="mt-8 w-full bg-gold text-ink py-3 rounded-full font-semibold hover:brightness-110 transition"
+        disabled={loading}
+        className="mt-8 w-full bg-gold text-ink py-3 rounded-full font-semibold hover:brightness-110 transition disabled:opacity-50"
       >
-        Proceed to Checkout
+        {loading ? "Checking account..." : customer ? "Proceed to Checkout" : "Sign In to Checkout"}
       </button>
+      {!loading && !customer && (
+        <p className="mt-3 text-center text-sm text-muted">
+          Sign in or <Link to="/signup" state={{ from: "/checkout" }} className="text-gold hover:underline">create an account</Link> to place your order.
+        </p>
+      )}
     </div>
   );
 }

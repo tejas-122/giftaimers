@@ -2,6 +2,23 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Counter = require("../models/Counter");
 const generateInvoicePDF = require("../utils/generateInvoice");
+const Customer = require("../models/Customer");
+const mongoose = require("mongoose");
+
+// Admin-only account history. Match by account ID, never by shipping name/email.
+exports.getCustomerOrders = async (req, res) => {
+  try {
+    if (!mongoose.isObjectIdOrHexString(req.params.customerId)) {
+      return res.status(400).json({ message: "Invalid customer ID" });
+    }
+    const customer = await Customer.findById(req.params.customerId).select("name email phone createdAt");
+    if (!customer) return res.status(404).json({ message: "Customer account not found" });
+    const orders = await Order.find({ customerAccount: customer._id }).sort({ createdAt: -1, _id: -1 });
+    res.json({ customer, orders });
+  } catch (err) {
+    res.status(500).json({ message: "Could not load customer order history" });
+  }
+};
 
 const SHIPPING_FLAT_FEE = 60; // customize per your logistics partner
 const FREE_SHIPPING_ABOVE = 999;

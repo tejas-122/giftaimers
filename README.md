@@ -334,6 +334,8 @@ POST   /api/upload                      Upload a product image to Cloudinary (ad
 | Domain | N/A | ~$10–15/year |
 
 You can genuinely run this at low/no cost until you have real order volume.
-#   g i f t a i m e r s  
- #   g i f t a i m e r s  
+#   g i f t a i m e r s 
+ 
+ #   g i f t a i m e r s 
+ 
  

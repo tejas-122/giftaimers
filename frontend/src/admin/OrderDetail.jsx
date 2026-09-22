@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/adminApi";
 
@@ -59,6 +59,7 @@ export default function OrderDetail() {
 
       <section className="bg-surface p-6 rounded-xl border border-ink/[0.06] mb-6">
         <h2 className="text-ivory font-semibold mb-3">Customer</h2>
+        {order.customerAccount && <Link to={`/admin/customers/${order.customerAccount}`} className="inline-block text-sm text-gold hover:underline mb-3">View customer profile and all orders →</Link>}
         <p className="text-ivory/80 text-sm">{order.customer.name} · {order.customer.phone}</p>
         <p className="text-ivory/80 text-sm">{order.customer.email}</p>
         <p className="text-ivory/80 text-sm">{order.customer.address}, {order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>

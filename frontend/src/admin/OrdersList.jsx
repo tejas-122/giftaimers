@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import api from "../api/adminApi";
+import { InvoiceButton, OrderStatusEditor } from "./OrderActions.jsx";
 
 const STATUS_COLORS = {
   placed: "text-blue-600 border-blue-600",
@@ -15,12 +16,24 @@ export default function OrdersList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refresh, setRefresh] = useState(0);
   const status = searchParams.get("status") || "";
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
-    api.get("/orders", { params: { status, limit: 50 } }).then((res) => setOrders(res.data.orders)).finally(() => setLoading(false));
-  }, [status]);
+    setError("");
+    api.get("/orders", { params: { status, limit: 50 } })
+      .then((res) => { if (active) setOrders(res.data.orders); })
+      .catch(() => { if (active) setError("Could not load orders. Please try again."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [status, refresh]);
+
+  const onUpdated = (updated) => setOrders((previous) => previous
+    .map((order) => order._id === updated._id ? updated : order)
+    .filter((order) => !status || order.status === status));
 
   return (
     <div>
@@ -38,7 +51,10 @@ export default function OrdersList() {
         </select>
       </div>
 
-      {loading ? (
+      <p className="text-sm text-muted mb-5">Select a customer to view their profile, all orders and invoice PDFs.</p>
+      {error ? (
+        <div role="alert"><p className="text-red-600">{error}</p><button onClick={() => setRefresh(refresh + 1)} className="text-gold underline mt-2">Try again</button></div>
+      ) : loading ? (
         <p className="text-muted">Loading...</p>
       ) : orders.length === 0 ? (
         <p className="text-muted">No orders found.</p>
@@ -53,6 +69,8 @@ export default function OrdersList() {
                 <th className="py-3 pr-4">Total</th>
                 <th className="py-3 pr-4">Status</th>
                 <th className="py-3 pr-4">Date</th>
+                <th className="py-3 pr-4">Update status</th>
+                <th className="py-3 pr-4">Download</th>
               </tr>
             </thead>
             <tbody>
@@ -61,13 +79,15 @@ export default function OrdersList() {
                   <td className="py-3 pr-4">
                     <Link to={`/admin/orders/${o._id}`} className="text-gold hover:underline font-mono text-xs">{o.orderNumber}</Link>
                   </td>
-                  <td className="py-3 pr-4">{o.customer.name}</td>
+                  <td className="py-3 pr-4">{o.customerAccount ? <Link to={`/admin/customers/${o.customerAccount}`} className="text-gold hover:underline">{o.customer.name}<span className="block text-xs">View customer & orders</span></Link> : <span>{o.customer.name}<span className="block text-xs text-muted">No linked account</span></span>}</td>
                   <td className="py-3 pr-4">{o.items.length}</td>
                   <td className="py-3 pr-4 font-mono">Rs. {o.grandTotal}</td>
                   <td className="py-3 pr-4">
                     <span className={`text-xs px-2 py-1 rounded-full border capitalize ${STATUS_COLORS[o.status]}`}>{o.status}</span>
                   </td>
                   <td className="py-3 pr-4 text-xs text-muted">{new Date(o.createdAt).toLocaleDateString()}</td>
+                  <td className="py-3 pr-4"><OrderStatusEditor order={o} onUpdated={onUpdated} /></td>
+                  <td className="py-3 pr-4"><InvoiceButton order={o} /></td>
                 </tr>
               ))}
             </tbody>

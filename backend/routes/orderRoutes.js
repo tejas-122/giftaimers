@@ -8,6 +8,7 @@ const {
   updateOrderStatus,
   getInvoice,
   getStats,
+  getCustomerOrders,
 } = require("../controllers/orderController");
 const { protectAdmin } = require("../middleware/auth");
 const { protectCustomer } = require("../middleware/customerAuth");
@@ -20,6 +21,7 @@ router.get("/track/:orderNumber", trackOrder);
 
 // Admin
 router.get("/stats/summary", protectAdmin, getStats);
+router.get("/customer/:customerId", protectAdmin, getCustomerOrders);
 router.get("/", protectAdmin, getOrders);
 router.get("/:id", protectAdmin, getOrderById);
 router.patch("/:id/status", protectAdmin, updateOrderStatus);

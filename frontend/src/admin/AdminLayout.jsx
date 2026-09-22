@@ -27,7 +27,7 @@ export default function AdminLayout() {
           Log out
         </button>
       </aside>
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 min-w-0 p-8 overflow-y-auto">
         <Outlet />
       </main>
     </div>

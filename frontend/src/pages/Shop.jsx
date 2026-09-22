@@ -38,6 +38,7 @@ export default function Shop() {
 
       <div className="flex flex-wrap gap-4 mb-8 items-center">
         <input
+          key={search}
           type="text"
           placeholder="Search personalized gifts..."
           defaultValue={search}
