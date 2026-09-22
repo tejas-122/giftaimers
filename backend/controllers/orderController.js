@@ -234,11 +234,11 @@ exports.getInvoice = async (req, res) => {
 exports.getStats = async (req, res) => {
   try {
     const [totalOrders, pendingOrders, deliveredOrders, revenueAgg] = await Promise.all([
-      Order.countDocuments(),
-      Order.countDocuments({ status: { $in: ["placed", "confirmed", "processing", "shipped"] } }),
-      Order.countDocuments({ status: "delivered" }),
+      Order.countDocuments({ archivedAt: null }),
+      Order.countDocuments({ archivedAt: null, status: { $in: ["placed", "confirmed", "processing", "shipped"] } }),
+      Order.countDocuments({ archivedAt: null, status: "delivered" }),
       Order.aggregate([
-        { $match: { status: { $ne: "cancelled" } } },
+        { $match: { archivedAt: null, status: { $ne: "cancelled" } } },
         { $group: { _id: null, total: { $sum: "$grandTotal" } } },
       ]),
     ]);
