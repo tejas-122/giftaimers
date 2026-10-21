@@ -308,7 +308,7 @@ GET    /api/products/admin/all          All products incl. hidden (admin auth)
 POST   /api/products                    Create product (admin auth)
 PUT    /api/products/:id                Update product (admin auth)
 PATCH  /api/products/:id/stock          Quick stock / out-of-stock toggle (admin auth)
-DELETE /api/products/:id                Soft-remove from store (admin auth); ?hard=true to permanently delete
+DELETE /api/products/:id                Permanently delete product (admin auth); past order details are retained
 
 POST   /api/orders                      Place an order (customer auth required)
 GET    /api/orders/track/:orderNumber   Public order tracking, no login needed

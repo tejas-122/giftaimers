@@ -25,10 +25,10 @@ export default function ProductList() {
   };
 
   const remove = async (product) => {
-    if (!confirm(`Remove "${product.name}" from the store?`)) return;
+    if (!confirm(`Permanently delete "${product.name}"? This cannot be undone.`)) return;
     try {
-      await api.delete(`/products/${product._id}`);
-      toast.success("Product removed");
+      await api.delete(`/products/${product._id}?hard=true`);
+      toast.success("Product permanently deleted");
       load();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to remove");
