@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/api";
+import ProductSpecifications from "../components/ProductSpecifications.jsx";
 import ProductViewer3D from "../components/ProductViewer3D.jsx";
 import { useCart } from "../context/CartContext.jsx";
 
@@ -153,6 +154,7 @@ export default function ProductDetail() {
           </button>
         </div>
       </div>
+      <ProductSpecifications sections={product.specifications} />
     </div>
   );
 }

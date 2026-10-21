@@ -7,6 +7,20 @@ const productSchema = new mongoose.Schema(
     description: { type: String, required: true },
     category: { type: String, required: true, index: true },
     images: [{ type: String, required: true }], // URLs (Cloudinary)
+    specifications: {
+      type: [new mongoose.Schema({
+        title: { type: String, required: true, trim: true, maxlength: 80 },
+        rows: {
+          type: [new mongoose.Schema({
+            label: { type: String, required: true, trim: true, maxlength: 100 },
+            value: { type: String, required: true, trim: true, maxlength: 1000 },
+          }, { _id: false })],
+          validate: { validator: rows => rows.length > 0 && rows.length <= 40, message: "Each specification section needs 1 to 40 details" },
+        },
+      }, { _id: false })],
+      default: [],
+      validate: { validator: sections => sections.length <= 10, message: "Maximum 10 specification sections" },
+    },
     model3d: { type: String, default: "" }, // optional .glb URL for real 3D model viewer
 
     price: { type: Number, required: true, min: 0 }, // MRP

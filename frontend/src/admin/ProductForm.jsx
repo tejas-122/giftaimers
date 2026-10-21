@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/adminApi";
+import SpecificationEditor, { createSpecificationSections, cleanSpecifications } from "./SpecificationEditor.jsx";
 
 const emptyField = { label: "", type: "text", required: true, maxLength: 50 };
 
@@ -13,6 +14,7 @@ export default function ProductForm() {
   const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
+    specifications: createSpecificationSections(),
     name: "",
     description: "",
     category: "",
@@ -35,7 +37,7 @@ export default function ProductForm() {
     if (isEdit) {
       api.get(`/products/admin/all`, { params: { limit: 1000 } }).then((res) => {
         const p = res.data.products.find((x) => x._id === id);
-        if (p) setForm(p);
+        if (p) setForm({ ...p, specifications: p.specifications?.length ? p.specifications : createSpecificationSections() });
       });
     }
   }, [id, isEdit]);
@@ -80,6 +82,7 @@ export default function ProductForm() {
     try {
       const payload = {
         ...form,
+        specifications: cleanSpecifications(form.specifications),
         price: Number(form.price),
         discountPercent: Number(form.discountPercent),
         stock: Number(form.stock),
@@ -96,7 +99,7 @@ export default function ProductForm() {
       }
       navigate("/admin/products");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save product");
+      toast.error(err.response?.data?.message || err.message || "Failed to save product");
     } finally {
       setSaving(false);
     }
@@ -131,6 +134,11 @@ export default function ProductForm() {
             </div>
           </div>
         </section>
+
+        <SpecificationEditor
+          sections={form.specifications || []}
+          onChange={(specifications) => setForm((current) => ({ ...current, specifications }))}
+        />
 
         {/* Images */}
         <section className="bg-surface p-6 rounded-xl border border-ink/[0.06] space-y-4">
