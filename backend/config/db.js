@@ -1,13 +1,17 @@
 const mongoose = require("mongoose");
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB connected: ${conn.connection.host}`);
-  } catch (err) {
-    console.error(`MongoDB connection error: ${err.message}`);
-    process.exit(1);
+let pendingConnection;
+
+// Reuse connections across warm function invocations and concurrent requests.
+async function connectDB() {
+  if (mongoose.connection.readyState === 1) return mongoose;
+  if (!pendingConnection) {
+    pendingConnection = mongoose.connect(process.env.MONGO_URI, {
+      serverSelectionTimeoutMS: 10000,
+      maxPoolSize: 5,
+    }).finally(() => { pendingConnection = undefined; });
   }
-};
+  return pendingConnection;
+}
 
 module.exports = connectDB;

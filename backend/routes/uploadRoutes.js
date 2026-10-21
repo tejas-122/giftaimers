@@ -11,7 +11,7 @@ cloudinary.config({
 });
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+const upload = multer({ storage, limits: { fileSize: 4 * 1024 * 1024 } });
 
 // POST /api/upload  (admin) - form-data field name: "image"
 router.post("/", protectAdmin, upload.single("image"), async (req, res) => {

@@ -45,6 +45,10 @@ export default function ProductForm() {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error("Please choose an image smaller than 4 MB.");
+      return;
+    }
     setUploading(true);
     try {
       const data = new FormData();
