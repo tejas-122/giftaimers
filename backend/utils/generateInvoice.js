@@ -60,7 +60,10 @@ function generateInvoicePDF(order, res) {
   let y = renderTableHeader(tableTop);
   doc.fillColor("#000000").fontSize(9);
   order.items.forEach((item) => {
-    const hasPersonalization = item.personalization && Object.keys(item.personalization).length > 0;
+    const detailValues = { ...item.personalization };
+    if (item.selectedOptions?.colour) detailValues.Colour = item.selectedOptions.colour;
+    if (item.selectedOptions?.size) detailValues.Size = item.selectedOptions.size;
+    const hasPersonalization = Object.keys(detailValues).length > 0;
     const requiredHeight = hasPersonalization ? 38 : 24;
 
     if (y + requiredHeight > 720) {
@@ -76,10 +79,10 @@ function generateInvoicePDF(order, res) {
     doc.text(`Rs. ${lineTotal}`, colX.total, y, { width: 50 });
     if (hasPersonalization) {
       y += 14;
-      const details = Object.entries(item.personalization)
+      const details = Object.entries(detailValues)
         .map(([k, v]) => `${k}: ${v}`)
         .join(", ");
-      doc.fontSize(8).fillColor("#666666").text(`Personalization - ${details}`, colX.item + 5, y, { width: 440 });
+      doc.fontSize(8).fillColor("#666666").text(`Details - ${details}`, colX.item + 5, y, { width: 440 });
       doc.fontSize(9).fillColor("#000000");
     }
     y += 20;

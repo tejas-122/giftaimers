@@ -1,3 +1,4 @@
+import ProductOptionsEditor from "./ProductOptionsEditor.jsx";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -10,10 +11,12 @@ export default function ProductForm() {
   const { id } = useParams();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
+  const [sizesText, setSizesText] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
+    colours: [],
     specifications: createSpecificationSections(),
     name: "",
     description: "",
@@ -37,6 +40,7 @@ export default function ProductForm() {
     if (isEdit) {
       api.get(`/products/admin/all`, { params: { limit: 1000 } }).then((res) => {
         const p = res.data.products.find((x) => x._id === id);
+        if (p) setSizesText((p.sizes || []).join(", "));
         if (p) setForm({ ...p, specifications: p.specifications?.length ? p.specifications : createSpecificationSections() });
       });
     }
@@ -82,6 +86,8 @@ export default function ProductForm() {
     try {
       const payload = {
         ...form,
+        colours: (form.colours || []).map(c => ({ name: c.name.trim(), hex: c.hex, image: (c.image || "").trim() })),
+        sizes: sizesText.split(",").map(s => s.trim()).filter(Boolean),
         specifications: cleanSpecifications(form.specifications),
         price: Number(form.price),
         discountPercent: Number(form.discountPercent),
@@ -158,6 +164,10 @@ export default function ProductForm() {
             <input value={form.model3d} onChange={(e) => handleChange("model3d", e.target.value)} className={inputClass} placeholder="https://.../model.glb" />
           </div>
         </section>
+
+        <ProductOptionsEditor colours={form.colours || []} sizesText={sizesText} images={form.images}
+          onColoursChange={colours => setForm(current => ({ ...current, colours }))}
+          onSizesChange={setSizesText} />
 
         {/* Pricing & Offers */}
         <section className="bg-surface p-6 rounded-xl border border-ink/[0.06] space-y-4">

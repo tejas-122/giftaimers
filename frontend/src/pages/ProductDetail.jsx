@@ -1,3 +1,4 @@
+import ProductOptions from "../components/ProductOptions.jsx";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -11,6 +12,7 @@ export default function ProductDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState({});
   const [qty, setQty] = useState(1);
   const [personalization, setPersonalization] = useState({});
   const [loading, setLoading] = useState(true);
@@ -21,6 +23,8 @@ export default function ProductDetail() {
       .get(`/products/${slug}`)
       .then((res) => {
         setProduct(res.data);
+        setSelectedOptions({});
+        setPersonalization({});
         setQty(res.data.minOrderQty || 1);
       })
       .catch(() => toast.error("Product not found"))
@@ -30,7 +34,11 @@ export default function ProductDetail() {
   if (loading) return <div className="max-w-7xl mx-auto px-5 py-16 text-muted">Loading...</div>;
   if (!product) return <div className="max-w-7xl mx-auto px-5 py-16 text-muted">Product not found.</div>;
 
+  const selectedColour = product.colours?.find(c => c.name === selectedOptions.colour);
+  const displayImages = selectedColour?.image ? [selectedColour.image, ...product.images.filter(image => image !== selectedColour.image)] : product.images;
   const handleAddToCart = () => {
+    if (product.colours?.length && !selectedOptions.colour) { toast.error("Please choose a colour"); return false; }
+    if (product.sizes?.length && !selectedOptions.size) { toast.error("Please choose a size"); return false; }
     // Validate required personalization fields
     for (const field of product.personalizationFields || []) {
       if (field.required && !personalization[field.label]) {
@@ -46,18 +54,18 @@ export default function ProductDetail() {
       toast.error(`Only ${Math.min(product.maxOrderQty, product.stock)} available`);
       return;
     }
-    addToCart(product, qty, personalization);
+    addToCart({ ...product, images: displayImages }, qty, personalization, selectedOptions);
     toast.success("Added to cart");
+    return true;
   };
 
   const handleBuyNow = () => {
-    handleAddToCart();
-    navigate("/cart");
+    if (handleAddToCart()) navigate("/cart");
   };
 
   return (
     <div className="max-w-7xl mx-auto px-5 py-10 grid md:grid-cols-2 gap-12">
-      <ProductViewer3D model3d={product.model3d} images={product.images} />
+      <ProductViewer3D key={`${product._id}-${selectedOptions.colour || "default"}`} model3d={selectedColour?.image ? "" : product.model3d} images={displayImages} />
 
       <div>
         {product.offerTag && (
@@ -87,6 +95,8 @@ export default function ProductDetail() {
             {product.stock} in stock · Min order {product.minOrderQty} · Max order {product.maxOrderQty}
           </p>
         )}
+
+        <ProductOptions product={product} selected={selectedOptions} onChange={setSelectedOptions} />
 
         {/* Personalization fields */}
         {product.personalizationFields?.length > 0 && (

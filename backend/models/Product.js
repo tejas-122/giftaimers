@@ -21,6 +21,19 @@ const productSchema = new mongoose.Schema(
       default: [],
       validate: { validator: sections => sections.length <= 10, message: "Maximum 10 specification sections" },
     },
+    colours: {
+      type: [new mongoose.Schema({
+        name: { type: String, required: true, trim: true, maxlength: 50 },
+        hex: { type: String, default: "#ffffff", match: /^#[0-9a-fA-F]{6}$/ },
+        image: { type: String, default: "", validate: v => !v || /^https?:\/\//.test(v) },
+      }, { _id: false })],
+      default: [],
+      validate: { validator: v => v.length <= 30 && new Set(v.map(c => c.name.toLowerCase())).size === v.length, message: "Use up to 30 uniquely named colours" },
+    },
+    sizes: {
+      type: [{ type: String, trim: true, minlength: 1, maxlength: 40 }], default: [],
+      validate: { validator: v => v.length <= 30 && new Set(v.map(s => s.toLowerCase())).size === v.length, message: "Use up to 30 unique sizes" },
+    },
     model3d: { type: String, default: "" }, // optional .glb URL for real 3D model viewer
 
     price: { type: Number, required: true, min: 0 }, // MRP

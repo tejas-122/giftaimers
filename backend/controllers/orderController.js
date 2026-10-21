@@ -4,6 +4,7 @@ const Counter = require("../models/Counter");
 const generateInvoicePDF = require("../utils/generateInvoice");
 const Customer = require("../models/Customer");
 const mongoose = require("mongoose");
+const validateProductOptions = require("../utils/productOptions");
 
 // Admin-only account history. Match by account ID, never by shipping name/email.
 exports.getCustomerOrders = async (req, res) => {
@@ -62,13 +63,16 @@ exports.placeOrder = async (req, res) => {
         });
       }
 
+      const selectedOptions = validateProductOptions(product, cartItem.selectedOptions || {});
+      const selectedColour = product.colours?.find(c => c.name === selectedOptions.colour);
       const lineTotal = product.sellingPrice * cartItem.quantity;
       itemsTotal += lineTotal;
 
       orderItems.push({
         product: product._id,
         name: product.name,
-        image: product.images?.[0] || "",
+        image: selectedColour?.image || product.images?.[0] || "",
+        selectedOptions,
         quantity: cartItem.quantity,
         price: product.sellingPrice,
         personalization: cartItem.personalization || {},

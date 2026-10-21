@@ -1,3 +1,4 @@
+import SelectedOptions from "../components/SelectedOptions.jsx";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
@@ -27,6 +28,7 @@ export default function Cart() {
             <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
             <div className="flex-1">
               <h3 className="text-ivory font-semibold">{item.name}</h3>
+              <SelectedOptions item={item} />
               {Object.entries(item.personalization || {}).length > 0 && (
                 <p className="text-xs text-muted mt-1">
                   {Object.entries(item.personalization).map(([k, v]) => `${k}: ${v}`).join(", ")}

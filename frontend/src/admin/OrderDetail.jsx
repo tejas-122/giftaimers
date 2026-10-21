@@ -1,3 +1,4 @@
+import SelectedOptions from "../components/SelectedOptions.jsx";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -72,6 +73,7 @@ export default function OrderDetail() {
             <div key={i} className="flex justify-between text-sm">
               <div>
                 <p className="text-ivory">{item.name} × {item.quantity}</p>
+                <SelectedOptions item={item} />
                 {Object.entries(item.personalization || {}).length > 0 && (
                   <p className="text-xs text-muted">
                     {Object.entries(item.personalization).map(([k, v]) => `${k}: ${v}`).join(", ")}

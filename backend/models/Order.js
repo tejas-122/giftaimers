@@ -7,6 +7,7 @@ const orderItemSchema = new mongoose.Schema(
     image: { type: String },
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true }, // unit selling price at time of order
+    selectedOptions: { colour: String, size: String },
     personalization: { type: mongoose.Schema.Types.Mixed, default: {} }, // e.g. { "Name to engrave": "Riya" }
   },
   { _id: false }

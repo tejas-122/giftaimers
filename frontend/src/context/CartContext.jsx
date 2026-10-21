@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const CartContext = createContext(null);
+const optionKey = (options = {}) => JSON.stringify([options.colour || "", options.size || ""]);
 
 export function CartProvider({ children }) {
   const [items, setItems] = useState(() => {
@@ -16,11 +17,11 @@ export function CartProvider({ children }) {
     localStorage.setItem("ga_cart", JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product, quantity, personalization) => {
+  const addToCart = (product, quantity, personalization, selectedOptions = {}) => {
     setItems((prev) => {
-      const key = `${product._id}-${JSON.stringify(personalization || {})}`;
+      const key = `${product._id}-${JSON.stringify(personalization || {})}-${optionKey(selectedOptions)}`;
       const existingIndex = prev.findIndex(
-        (i) => `${i.productId}-${JSON.stringify(i.personalization || {})}` === key
+        (i) => `${i.productId}-${JSON.stringify(i.personalization || {})}-${optionKey(i.selectedOptions)}` === key
       );
       if (existingIndex > -1) {
         const copy = [...prev];
@@ -40,6 +41,7 @@ export function CartProvider({ children }) {
           stock: product.stock,
           quantity,
           personalization: personalization || {},
+          selectedOptions,
         },
       ];
     });

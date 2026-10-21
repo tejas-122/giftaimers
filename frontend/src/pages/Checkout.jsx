@@ -1,3 +1,4 @@
+import SelectedOptions from "../components/SelectedOptions.jsx";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -38,6 +39,7 @@ export default function Checkout() {
           name: i.name,
           quantity: i.quantity,
           personalization: i.personalization,
+          selectedOptions: i.selectedOptions,
         })),
         paymentMethod: "COD",
       };
@@ -95,7 +97,7 @@ export default function Checkout() {
         <div className="space-y-2 text-sm text-ivory/80 mb-4">
           {items.map((item, i) => (
             <div key={i} className="flex justify-between">
-              <span>{item.name} × {item.quantity}</span>
+              <div><span>{item.name} × {item.quantity}</span><SelectedOptions item={item} /></div>
               <span className="font-mono">Rs. {item.price * item.quantity}</span>
             </div>
           ))}

@@ -1,3 +1,4 @@
+import SelectedOptions from "../components/SelectedOptions.jsx";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import api from "../api/adminApi";
@@ -41,7 +42,7 @@ export default function CustomerDetail() {
           <div className="flex flex-wrap items-center gap-3"><span className="text-xs capitalize">Current: {order.status}</span><OrderStatusEditor order={order} onUpdated={onUpdated} /><InvoiceButton order={order} /></div>
         </div>
         <div className="grid md:grid-cols-2 gap-6 text-sm">
-          <div><h3 className="font-semibold mb-2">Items</h3><ul className="space-y-3">{order.items.map((item, index) => <li key={index}><p>{item.name} × {item.quantity} <span className="text-muted">({money(item.price * item.quantity)})</span></p>{Object.entries(item.personalization || {}).map(([key, value]) => <p key={key} className="text-xs text-muted break-words">{key}: {String(value)}</p>)}</li>)}</ul><p className="font-semibold mt-4">Order total: {money(order.grandTotal)}</p><p className="text-xs text-muted mt-1">{order.paymentMethod} · Payment: {order.paymentStatus}</p></div>
+          <div><h3 className="font-semibold mb-2">Items</h3><ul className="space-y-3">{order.items.map((item, index) => <li key={index}><p>{item.name} × {item.quantity} <span className="text-muted">({money(item.price * item.quantity)})</span></p><SelectedOptions item={item} />{Object.entries(item.personalization || {}).map(([key, value]) => <p key={key} className="text-xs text-muted break-words">{key}: {String(value)}</p>)}</li>)}</ul><p className="font-semibold mt-4">Order total: {money(order.grandTotal)}</p><p className="text-xs text-muted mt-1">{order.paymentMethod} · Payment: {order.paymentStatus}</p></div>
           <div><h3 className="font-semibold mb-2">Delivery details</h3><p>{order.customer.name}</p><p>{order.customer.phone}</p><p className="break-all">{order.customer.email}</p><p className="mt-2">{order.customer.address}, {order.customer.city}, {order.customer.state} - {order.customer.pincode}</p><Link to={`/admin/orders/${order._id}`} className="inline-block text-gold hover:underline mt-4">View full order and status history →</Link></div>
         </div>
       </article>)}</div>}
