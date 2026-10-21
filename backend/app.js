@@ -19,7 +19,7 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : "*",
+    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",").map(origin => origin.trim().replace(/\/+$/, "")).filter(Boolean) : "*",
     credentials: true,
   })
 );
