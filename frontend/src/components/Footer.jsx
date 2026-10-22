@@ -44,7 +44,7 @@ export default function Footer() {
         <div>
           <h4 className="text-ivory mb-3 uppercase tracking-wider text-xs">Contact Us</h4>
           <a href="mailto:support@giftaimers.com" className="hover:text-gold transition-colors">support@giftaimers.com</a>
-          <p>Bhopal, Madhya Pradesh, India</p>
+          <p>Sehore, Madhya Pradesh</p>
           <div className="mt-4 flex flex-wrap gap-3" aria-label="Social media">
             {socialLinks.map(({ name, url, icon }) => {
               const className = "inline-flex min-h-11 items-center gap-2 rounded-full border border-ivory/15 px-4 py-2";

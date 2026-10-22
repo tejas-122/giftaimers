@@ -1,3 +1,4 @@
+import DeliveryCheck from "../components/DeliveryCheck.jsx";
 import ProductOptions from "../components/ProductOptions.jsx";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -97,6 +98,8 @@ export default function ProductDetail() {
         )}
 
         <ProductOptions product={product} selected={selectedOptions} onChange={setSelectedOptions} />
+
+        <DeliveryCheck />
 
         {/* Personalization fields */}
         {product.personalizationFields?.length > 0 && (

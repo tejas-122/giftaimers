@@ -1,3 +1,4 @@
+import ShippingQuotes from "./admin/ShippingQuotes.jsx";
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="products" element={<ProductList />} />
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/:id/edit" element={<ProductForm />} />
+          <Route path="shipping-quotes" element={<ShippingQuotes />} />
           <Route path="orders" element={<OrdersList />} />
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="customers/:id" element={<CustomerDetail />} />

@@ -17,6 +17,7 @@ export default function AdminLayout() {
         <nav className="space-y-1 flex-1">
           <NavLink to="/admin" end className={linkClass}>Dashboard</NavLink>
           <NavLink to="/admin/products" className={linkClass}>Products</NavLink>
+          <NavLink to="/admin/shipping-quotes" className={linkClass}>Courier Quotes</NavLink>
           <NavLink to="/admin/orders" className={linkClass}>Orders</NavLink>
         </nav>
         <div className="text-xs text-muted mb-3">{admin?.name} ({admin?.role})</div>

@@ -21,8 +21,7 @@ exports.getCustomerOrders = async (req, res) => {
   }
 };
 
-const SHIPPING_FLAT_FEE = 60; // customize per your logistics partner
-const FREE_SHIPPING_ABOVE = 999;
+const { shippingFee: resolveShippingFee } = require("../utils/shipping");
 const COD_FEE = 30;
 
 // POST /api/orders  (requires a signed-in customer - see protectCustomer middleware)
@@ -47,6 +46,7 @@ exports.placeOrder = async (req, res) => {
       if (product.outOfStock || product.stock <= 0) {
         return res.status(400).json({ message: `${product.name} is currently out of stock` });
       }
+      if (!Number.isInteger(cartItem.quantity) || cartItem.quantity <= 0) return res.status(400).json({ message: "Quantity must be a positive whole number" });
       if (cartItem.quantity < product.minOrderQty) {
         return res.status(400).json({
           message: `Minimum order quantity for ${product.name} is ${product.minOrderQty}`,
@@ -79,6 +79,8 @@ exports.placeOrder = async (req, res) => {
       });
     }
 
+    const shippingFee = await resolveShippingFee(customerAccount, customer, items, req.body.shippingQuoteId);
+
     // Atomically decrement stock for all items
     const decrementedItems = [];
     for (const item of orderItems) {
@@ -109,7 +111,6 @@ exports.placeOrder = async (req, res) => {
     }
 
     try {
-      const shippingFee = itemsTotal >= FREE_SHIPPING_ABOVE ? 0 : SHIPPING_FLAT_FEE;
       const codFee = paymentMethod === "COD" || !paymentMethod ? COD_FEE : 0;
       const grandTotal = itemsTotal + shippingFee + codFee;
 

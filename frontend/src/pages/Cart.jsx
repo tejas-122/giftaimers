@@ -60,7 +60,7 @@ export default function Cart() {
         <span className="text-ivory font-semibold">Items Total</span>
         <span className="font-mono text-xl text-gold">Rs. {itemsTotal}</span>
       </div>
-      <p className="text-xs text-muted mt-2">Shipping and COD fee calculated at checkout.</p>
+      <p className="text-xs text-muted mt-2">Free shipping to Sehore 466001. Other PIN codes need a courier quote at checkout. COD fee applies separately.</p>
 
       <button
         onClick={() => navigate("/checkout")}

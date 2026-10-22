@@ -33,7 +33,7 @@ export default function Navbar() {
     <header className="store-header font-body">
       <div className="store-topbar">
         <Link to="/" className="store-brand" aria-label="GiftAimers home"><img src={logo} alt="" /><span>gift<span className="text-gold">aimers</span><small>little gifts. big feelings.</small></span></Link>
-        <div className="store-location"><span aria-hidden="true">🇮🇳</span><div>Made with love in<strong>Bhopal, Madhya Pradesh</strong></div></div>
+        <div className="store-location"><span aria-hidden="true">🇮🇳</span><div>Made with love in<strong>Sehore, Madhya Pradesh</strong></div></div>
         <form onSubmit={searchGifts} className="store-search" role="search"><input aria-label="Search gifts" type="search" placeholder="Find a gift they'll love..." value={search} onChange={(e) => setSearch(e.target.value)} /><button type="submit" aria-label="Search"><StoreIcon name="search" /></button></form>
         <Link to="/shop" className="store-finder"><StoreIcon name="gift" /> Find a gift</Link>
         <nav aria-label="Account and orders" className="store-actions">

@@ -54,6 +54,7 @@ app.use("/api/auth", authRoutes); // admin auth
 app.use("/api/customers", customerAuthRoutes); // customer accounts
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/shipping", require("./routes/shippingRoutes"));
 app.use("/api/upload", uploadRoutes);
 
 // 404 handler
